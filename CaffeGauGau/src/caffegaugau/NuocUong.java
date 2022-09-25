@@ -4,19 +4,262 @@
  */
 package caffegaugau;
 
+import Database.MyDatabase;
+import Database.SQL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Vector;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
 /**
  *
  * @author dhhoa
  */
 public class NuocUong extends javax.swing.JFrame {
 
+    int click = -1;
+    private DefaultTableModel model;
+    String sql;
+    Statement st;
+    private boolean add = false, change = false;
+    Connection cnn;
+    String user = "sa";
+    String pass = "123"; // thay doi pass cho phu hop
+    String url = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe";
+
     /**
      * Creates new form NuocUong
      */
     public NuocUong() {
         initComponents();
+        setLocationRelativeTo(null);
+        loadData();
+        loadLoaiNuoc();
+        click = 0;
+        Click(click);
+        Disabled();
     }
 
+    private void checkKyTu(String arry) {
+        char[] character = arry.toCharArray();
+        for (int i = 0; i < character.length; i++) {
+            if (String.valueOf(character[i]).matches("\\D+")) {
+                btnSave.setEnabled(false);
+                lbTrangthai.setText("Số lượng không thể chứa kí tự");
+                break;
+            } else {
+                btnSave.setEnabled(true);
+            }
+        }
+    }
+
+//    private String cutChar(String arry) {
+//        return arry.replaceAll("\\D+", "");
+//    }
+//    private String cutNumber(String arry) {
+//        return arry.replaceAll("\\d+", "");
+//    }
+    private void loadLoaiNuoc() {
+        cbLoaiNuoc.removeAllItems();
+        cbLoaiNuoc.addItem("Cafe");
+        cbLoaiNuoc.addItem("Sinh Tố");
+        cbLoaiNuoc.addItem("Nước Giải Khát");
+    }
+
+    private void loadData() {
+        String[] arry = {"Mã Thức Uống", "Loại Nước", "Tên Nước", "Đơn Vị", "Số Lượng", "Giá Bán"};
+        model = new DefaultTableModel(arry, 0);
+        try {
+//            Vector data = null;
+            cnn = DriverManager.getConnection(url, user, pass);
+            Statement st = cnn.createStatement();
+            sql = "Select * from QLNuoc";
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                Vector vector = new Vector();
+                vector.add(rs.getString("maNuoc").trim());
+                vector.add(rs.getString("loaiNuoc").trim());
+                vector.add(rs.getString("tenNuoc").trim());
+                vector.add(rs.getString("donVi").trim());
+                vector.add(rs.getInt("soLuong"));
+                vector.add(rs.getString("giaBan").trim());
+
+                model.addRow(vector);
+            }
+            tableDrink.setModel(model);
+            st.close();
+            cnn.close();
+            rs.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void Click(int k) {
+        Enabled();
+        cbLoaiNuoc.removeAllItems();
+        if (k >= 0) {
+            tfMatu.setText(model.getValueAt(k, 0).toString());
+            cbLoaiNuoc.addItem(model.getValueAt(k, 1).toString());
+            tfTen.setText(model.getValueAt(k, 2).toString());
+            tfDonVi.setText(model.getValueAt(k, 3).toString());
+            tfSoLuong.setText(model.getValueAt(k, 4).toString());
+            String[] s1 = model.getValueAt(k, 5).toString().split("\\s");
+            tfGia.setText(s1[0]);
+            //tfGia.setText(model.getValueAt(click, 5).toString());
+        }
+    }
+
+    private double convertedToNumbers(String s) {
+        String number = "";
+        String[] array = s.replace(",", " ").split("\\s");
+        for (String i : array) {
+            number = number.concat(i);
+        }
+        return Double.parseDouble(number);
+    }
+
+    //UnBlock input
+    private void Enabled() {
+        tfMatu.setEnabled(true);
+        cbLoaiNuoc.setEnabled(true);
+        tfTen.setEnabled(true);
+        tfDonVi.setEnabled(true);
+        tfSoLuong.setEnabled(true);
+        tfGia.setEnabled(true);
+        btnDel.setEnabled(true);
+        btnEdit.setEnabled(true);
+    }
+
+    //Block input
+    private void Disabled() {
+        tfMatu.setEnabled(false);
+        cbLoaiNuoc.setEnabled(false);
+        tfTen.setEnabled(false);
+        tfDonVi.setEnabled(false);
+        tfSoLuong.setEnabled(false);
+        tfGia.setEnabled(false);
+        btnDel.setEnabled(false);
+        btnEdit.setEnabled(false);
+    }
+
+    //Reset input
+    private void reset() {
+        add = false;
+        change = false;
+        loadLoaiNuoc();
+        tfMatu.setText("");
+        cbLoaiNuoc.setSelectedIndex(0);
+        tfTen.setText("");
+        tfDonVi.setText("");
+        tfSoLuong.setText("");
+        tfGia.setText("");
+        lbTrangthai.setText("Trạng Thái");
+        Enabled();
+    }
+
+//    private boolean checkNull() {
+//        if (tfMatu.getText().equals("")) {
+//            lbTrangthai.setText("Bạn chưa nhập mã thức uống!");
+//            return false;
+//        } else if (cbLoaiNuoc.getSelectedItem().equals("")) {
+//            lbTrangthai.setText("Bạn chưa chọn loại thức uống!");
+//            return false;
+//        } else if (tfTen.getText().equals("")) {
+//            lbTrangthai.setText("Bạn chưa nhập tên thức uống");
+//            return false;
+//        } else if (tfDonVi.getText().equals("")) {
+//            lbTrangthai.setText("Bạn chưa nhập đơn vị tính!");
+//            return false;
+//        } else if (tfSoLuong.getText().equals("")) {
+//            lbTrangthai.setText("Bạn chưa nhập số lượng nước!");
+//            return false;
+//        } else if (tfGia.getText().equals("")) {
+//            lbTrangthai.setText("Bạn chưa nhập giá!");
+//            return false;
+//        }
+//        return true;
+//    }
+    private void addDrink() {
+        String standard = (String) cbLoaiNuoc.getSelectedItem();
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection cnn = DriverManager.getConnection(url, user, pass);
+            PreparedStatement ps = cnn.prepareStatement("insert into QLNuoc values(?,?,?,?,?,?)");
+            ps.setString(1, tfMatu.getText());
+            ps.setString(2, standard);
+            ps.setString(3, tfTen.getText());
+            ps.setString(4, tfGia.getText());
+            ps.setString(5, tfDonVi.getText());
+            ps.setString(6, tfSoLuong.getText());
+            int kq = ps.executeUpdate();
+            if (kq == 1) {
+                JOptionPane.showMessageDialog(this, "Them thanh cong");
+            } else {
+                JOptionPane.showMessageDialog(this, "Them that bai");
+            }
+            loadData();
+            ps.close();
+            cnn.close();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Them that bai");
+            e.printStackTrace();
+        }
+
+    }
+
+//    private void editDrink() {
+//        try {
+//            cnn = DriverManager.getConnection(url, user, pass);
+//            String sql = "UPDATE QLNuoc SET maNuoc=?,loaiNuoc=?,tenNuoc=?,donVi=?,soLuong=?,giaBan=? WHERE maNuoc=?";
+//            PreparedStatement ps = cnn.prepareStatement(sql);
+//            ps.setString(1, tfMatu.getText());
+//            ps.setBoolean(2, (boolean) cbLoaiNuoc.getSelectedItem());
+//            ps.setString(3, tfTen.getText());
+//            ps.setString(4, tfTen.getText());
+//            ps.setString(5, tfSoLuong.getText());
+//            ps.setString(6, tfGia.getText());
+//
+//            int kq = ps.executeUpdate();
+//            if (kq == 1) {
+//                JOptionPane.showMessageDialog(this, "Sinh viên đã được cập nhật");
+//            }
+//
+//        } catch (SQLException ex) {
+//            System.out.println(ex);
+//        }
+//
+//    }
+//    private boolean check() {
+//        try {
+//
+//            ResultSet rs = st.executeQuery(sql);
+//
+//            while (rs.next()) {
+//                if (rs.getString("maNuoc").toString().trim().equals(tfMatu.getText())) {
+//                    lbTrangthai.setText("Mã nước bạn nhập đã tồn tại");
+//                    return false;
+//                } else if (rs.getString("tenNuoc").toString().trim().equals(tfTen.getText())) {
+//                    lbTrangthai.setText("Thức uống bạn nhập đã tồn tại");
+//                    return false;
+//                }
+//            }
+//            st.close();
+//            cnn.close();
+//            rs.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return true;
+//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -100,7 +343,7 @@ public class NuocUong extends javax.swing.JFrame {
         });
 
         btnAdd.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/plus.png"))); // NOI18N
+        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/icons8-add-30.png"))); // NOI18N
         btnAdd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAddActionPerformed(evt);
@@ -109,7 +352,6 @@ public class NuocUong extends javax.swing.JFrame {
 
         btnDel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnDel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/delete.png"))); // NOI18N
-        btnDel.setEnabled(false);
         btnDel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDelActionPerformed(evt);
@@ -117,8 +359,7 @@ public class NuocUong extends javax.swing.JFrame {
         });
 
         btnSave.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/floppy-disk.png"))); // NOI18N
-        btnSave.setEnabled(false);
+        btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/icons8-save-30.png"))); // NOI18N
         btnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSaveActionPerformed(evt);
@@ -127,7 +368,6 @@ public class NuocUong extends javax.swing.JFrame {
 
         btnCancel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnCancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/x-button.png"))); // NOI18N
-        btnCancel.setEnabled(false);
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelActionPerformed(evt);
@@ -136,7 +376,6 @@ public class NuocUong extends javax.swing.JFrame {
 
         btnEdit.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnEdit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/edit.png"))); // NOI18N
-        btnEdit.setEnabled(false);
         btnEdit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEditActionPerformed(evt);
@@ -148,8 +387,8 @@ public class NuocUong extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(29, Short.MAX_VALUE)
-                .addComponent(btnSave)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -164,13 +403,16 @@ public class NuocUong extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnCancel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
-                    .addComponent(btnDel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnEdit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnCancel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
+                            .addComponent(btnDel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnEdit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         lbTrangthai.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -304,9 +546,8 @@ public class NuocUong extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnBack)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbQLTU)
-                        .addGap(246, 246, 246))
+                        .addGap(332, 332, 332)
+                        .addComponent(lbQLTU))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
@@ -315,8 +556,8 @@ public class NuocUong extends javax.swing.JFrame {
                                 .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1))
                         .addGap(26, 26, 26)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -341,15 +582,15 @@ public class NuocUong extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tfGiaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfGiaKeyReleased
-     
+
     }//GEN-LAST:event_tfGiaKeyReleased
 
     private void tfSoLuongKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfSoLuongKeyReleased
-       
+
     }//GEN-LAST:event_tfSoLuongKeyReleased
 
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
-      
+
     }//GEN-LAST:event_btnFindActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
@@ -359,28 +600,75 @@ public class NuocUong extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        
+
+        reset();
+        add = true;
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-       
+//        add = false;
+//        change = true;
+//        Enabled();      
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
-       
+        try {
+            int del = JOptionPane.showConfirmDialog(null, "Bạn có muốn xóa thức uống này hay không?", "Thông báo", 2);
+            if (del == JOptionPane.YES_OPTION) {
+                cnn = DriverManager.getConnection(url, user, pass);
+                String sqldel = "DELETE FROM QLNuoc WHERE maNuoc =?";
+                PreparedStatement ps = cnn.prepareStatement(sqldel);
+                ps.setString(1, tfMatu.getText().trim());
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Xóa thành công thức uống!");
+                Click(click);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        reset();
+        loadData();
+
+
     }//GEN-LAST:event_btnDelActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-       
+//        if (add == true) {
+//            if (check()) {
+//                addDrink();
+//            }
+//        } else {
+//            if (change == true) {
+//                editDrink();
+//            }
+//        }
+        addDrink();
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-      
+
+        int result = JOptionPane.showConfirmDialog(this,
+                "Bạn có muốn thoát khỏi chương trình", "",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (result == JOptionPane.YES_OPTION) {
+            MainFr mf = new MainFr();
+            mf.setVisible(true);
+            mf.setLocationRelativeTo(null);
+            mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.dispose();
+        }
+
+//       Disabled();
+//        reset();
+//        loadData();
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void tableDrinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableDrinkMouseClicked
-      
-        
+        click = tableDrink.getSelectedRow();
+        // show dòng index lên form
+        Click(click);
     }//GEN-LAST:event_tableDrinkMouseClicked
 
     /**

@@ -337,7 +337,7 @@ public class datban extends javax.swing.JFrame {
                             .addComponent(lbTrangthai, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnHome)
-                                .addGap(344, 344, 344)
+                                .addGap(414, 414, 414)
                                 .addComponent(jLabel1)
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
@@ -474,6 +474,8 @@ public class datban extends javax.swing.JFrame {
     private javax.swing.JRadioButton radDathanhtoan;
     private javax.swing.JRadioButton radNo;
     private javax.swing.JTable tableDatban;
+    private org.netbeans.modules.form.InvalidComponent tfDay;
+    private org.netbeans.modules.form.InvalidComponent tfDay1;
     private javax.swing.JTextField tfNote;
     private javax.swing.JTextField tfSDT;
     private javax.swing.JTextField tfTenkhach;
