@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -28,10 +30,9 @@ public class NuocUong extends javax.swing.JFrame {
     private DefaultTableModel model;
     String sql;
     Statement st;
-    private boolean add = false, change = false;
     Connection cnn;
     String user = "sa";
-    String pass = "123"; // thay doi pass cho phu hop
+    String pass = "songlong"; // thay doi pass cho phu hop
     String url = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe";
 
     /**
@@ -60,12 +61,14 @@ public class NuocUong extends javax.swing.JFrame {
         }
     }
 
-//    private String cutChar(String arry) {
-//        return arry.replaceAll("\\D+", "");
-//    }
-//    private String cutNumber(String arry) {
-//        return arry.replaceAll("\\d+", "");
-//    }
+    private String cutChar(String arry) {
+        return arry.replaceAll("\\D+", "");
+    }
+
+    private String cutNumber(String arry) {
+        return arry.replaceAll("\\d+", "");
+    }
+
     private void loadLoaiNuoc() {
         cbLoaiNuoc.removeAllItems();
         cbLoaiNuoc.addItem("Cafe");
@@ -136,6 +139,8 @@ public class NuocUong extends javax.swing.JFrame {
         tfGia.setEnabled(true);
         btnDel.setEnabled(true);
         btnEdit.setEnabled(true);
+        btnSave.setEnabled(true);
+
     }
 
     //Block input
@@ -148,12 +153,12 @@ public class NuocUong extends javax.swing.JFrame {
         tfGia.setEnabled(false);
         btnDel.setEnabled(false);
         btnEdit.setEnabled(false);
+        btnSave.setEnabled(false);
     }
 
     //Reset input
     private void reset() {
-        add = false;
-        change = false;
+
         loadLoaiNuoc();
         tfMatu.setText("");
         cbLoaiNuoc.setSelectedIndex(0);
@@ -165,92 +170,140 @@ public class NuocUong extends javax.swing.JFrame {
         Enabled();
     }
 
-//    private boolean checkNull() {
-//        if (tfMatu.getText().equals("")) {
-//            lbTrangthai.setText("Bạn chưa nhập mã thức uống!");
-//            return false;
-//        } else if (cbLoaiNuoc.getSelectedItem().equals("")) {
-//            lbTrangthai.setText("Bạn chưa chọn loại thức uống!");
-//            return false;
-//        } else if (tfTen.getText().equals("")) {
-//            lbTrangthai.setText("Bạn chưa nhập tên thức uống");
-//            return false;
-//        } else if (tfDonVi.getText().equals("")) {
-//            lbTrangthai.setText("Bạn chưa nhập đơn vị tính!");
-//            return false;
-//        } else if (tfSoLuong.getText().equals("")) {
-//            lbTrangthai.setText("Bạn chưa nhập số lượng nước!");
-//            return false;
-//        } else if (tfGia.getText().equals("")) {
-//            lbTrangthai.setText("Bạn chưa nhập giá!");
-//            return false;
-//        }
-//        return true;
-//    }
+    private boolean checkNull() {
+        if (tfMatu.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập mã thức uống!");
+            return false;
+        } else if (cbLoaiNuoc.getSelectedItem().equals("")) {
+            lbTrangthai.setText("Bạn chưa chọn loại thức uống!");
+            return false;
+        } else if (tfTen.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập tên thức uống");
+            return false;
+        } else if (tfDonVi.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập đơn vị tính!");
+            return false;
+        } else if (tfSoLuong.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập số lượng nước!");
+            return false;
+        } else if (tfGia.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập giá!");
+            return false;
+        }
+        return true;
+    }
+
     private void addDrink() {
-        String standard = (String) cbLoaiNuoc.getSelectedItem();
+        String nuoc = (String) cbLoaiNuoc.getSelectedItem();
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection cnn = DriverManager.getConnection(url, user, pass);
             PreparedStatement ps = cnn.prepareStatement("insert into QLNuoc values(?,?,?,?,?,?)");
             ps.setString(1, tfMatu.getText());
-            ps.setString(2, standard);
+            ps.setString(2, nuoc);
             ps.setString(3, tfTen.getText());
             ps.setString(4, tfGia.getText());
             ps.setString(5, tfDonVi.getText());
             ps.setString(6, tfSoLuong.getText());
             int kq = ps.executeUpdate();
             if (kq == 1) {
-                JOptionPane.showMessageDialog(this, "Them thanh cong");
-            } else {
-                JOptionPane.showMessageDialog(this, "Them that bai");
+                JOptionPane.showMessageDialog(this, "Thêm thành công");
             }
             loadData();
             ps.close();
             cnn.close();
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Them that bai");
+            JOptionPane.showMessageDialog(this, "Thêm that bai");
             e.printStackTrace();
         }
 
     }
 
-//    private void editDrink() {
-//        try {
-//            cnn = DriverManager.getConnection(url, user, pass);
-//            String sql = "UPDATE QLNuoc SET maNuoc=?,loaiNuoc=?,tenNuoc=?,donVi=?,soLuong=?,giaBan=? WHERE maNuoc=?";
-//            PreparedStatement ps = cnn.prepareStatement(sql);
-//            ps.setString(1, tfMatu.getText());
-//            ps.setBoolean(2, (boolean) cbLoaiNuoc.getSelectedItem());
-//            ps.setString(3, tfTen.getText());
-//            ps.setString(4, tfTen.getText());
-//            ps.setString(5, tfSoLuong.getText());
-//            ps.setString(6, tfGia.getText());
-//
-//            int kq = ps.executeUpdate();
-//            if (kq == 1) {
-//                JOptionPane.showMessageDialog(this, "Sinh viên đã được cập nhật");
-//            }
-//
-//        } catch (SQLException ex) {
-//            System.out.println(ex);
-//        }
-//
-//    }
+    private void editDrink() {
+        String editnuoc = (String) cbLoaiNuoc.getSelectedItem();
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection cnn = DriverManager.getConnection(url, user, pass);
+            PreparedStatement ps = cnn.prepareStatement("UPDATE QLNuoc SET maNuoc=?,loaiNuoc=?,tenNuoc=?,giaBan=?,donVi=?,soLuong=? WHERE maNuoc=?");
+            ps.setString(1, tfMatu.getText());
+            ps.setString(2, editnuoc);
+            ps.setString(3, tfTen.getText());
+            ps.setString(4, tfGia.getText());
+            ps.setString(5, tfDonVi.getText());
+            ps.setString(6, tfSoLuong.getText());
+            int update = ps.executeUpdate();
+            if (update == 1) {
+                JOptionPane.showMessageDialog(this, "Thức uống đã được thay đổi");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Thay đổi that bai");
+            e.printStackTrace();
+        }
+
+    }
+
+    public boolean checkMTU() {
+        try {
+            cnn = DriverManager.getConnection(url, user, pass);
+            String check = "SELECT maNuoc FROM QLNuoc WHERE maNuoc = ?";
+            PreparedStatement ps = cnn.prepareStatement(check);
+            ps.setString(1, tfMatu.getText());
+            ResultSet rs = ps.executeQuery();
+            String nuoc;
+            while (rs.next()) {
+                nuoc = rs.getString("maNuoc");
+                if (nuoc.equals(tfMatu.getText())) {
+                    lbTrangthai.setText("Mã nước bạn nhập đã tồn tại");
+                    return false;
+                }
+                cnn.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return true;
+    }
+
+    public boolean checkTTU() {
+        try {
+            cnn = DriverManager.getConnection(url, user, pass);
+            String check = "SELECT tenNuoc FROM QLNuoc WHERE tenNuoc = ?";
+            PreparedStatement ps = cnn.prepareStatement(check);
+            ps.setString(1, tfTen.getText());
+            ResultSet rs = ps.executeQuery();
+            String nuoc;
+            while (rs.next()) {
+                nuoc = rs.getString("tenNuoc");
+                if (nuoc.equals(tfTen.getText())) {
+                    lbTrangthai.setText("Tên nước bạn nhập đã tồn tại");
+                    return false;
+                }
+                cnn.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return true;
+    }
+
 //    private boolean check() {
 //        try {
-//
 //            ResultSet rs = st.executeQuery(sql);
-//
+//            String mtu;
+//            String ttu;
 //            while (rs.next()) {
-//                if (rs.getString("maNuoc").toString().trim().equals(tfMatu.getText())) {
-//                    lbTrangthai.setText("Mã nước bạn nhập đã tồn tại");
-//                    return false;
-//                } else if (rs.getString("tenNuoc").toString().trim().equals(tfTen.getText())) {
-//                    lbTrangthai.setText("Thức uống bạn nhập đã tồn tại");
+//                mtu = rs.getString("maNuoc");
+//                ttu = rs.getString("tenNuoc");
+//                if (mtu.equals(tfMatu.getText())) {
+//                    JOptionPane.showMessageDialog(this, "Ma thuc uong da ton tai");
 //                    return false;
 //                }
+//                if (ttu.equals(tfTen.getText())) {
+//                    JOptionPane.showMessageDialog(this, "Ma thuc uong da ton tai");
+//                    return false;
+//                }
+//                cnn.close();
 //            }
 //            st.close();
 //            cnn.close();
@@ -296,8 +349,11 @@ public class NuocUong extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tableDrink = new javax.swing.JTable();
         lbQLTU = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
 
         lbMatu.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         lbMatu.setText("Mã thức uống:");
@@ -390,29 +446,26 @@ public class NuocUong extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnDel, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnDel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(64, 64, 64))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(btnCancel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
-                            .addComponent(btnDel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnEdit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE)
+                    .addComponent(btnDel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnEdit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnAdd, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         lbTrangthai.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -439,7 +492,7 @@ public class NuocUong extends javax.swing.JFrame {
                             .addComponent(lbGia))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbLoaiNuoc, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cbLoaiNuoc, 0, 300, Short.MAX_VALUE)
                             .addComponent(tfMatu)
                             .addComponent(tfDonVi)
                             .addComponent(tfSoLuong)
@@ -449,10 +502,10 @@ public class NuocUong extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(lbTrangthai, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -486,7 +539,7 @@ public class NuocUong extends javax.swing.JFrame {
                 .addComponent(lbTrangthai, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
         tfFind.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -537,6 +590,21 @@ public class NuocUong extends javax.swing.JFrame {
         lbQLTU.setFont(new java.awt.Font("Tahoma", 0, 48)); // NOI18N
         lbQLTU.setText("Quản lý thức uống");
 
+        jLabel8.setIcon(new javax.swing.ImageIcon("C:\\Users\\dhhoa\\Downloads\\icons8-minus-48.png")); // NOI18N
+        jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel8MouseClicked(evt);
+            }
+        });
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/Button-Close-icon-48.png"))); // NOI18N
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -545,10 +613,6 @@ public class NuocUong extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnBack)
-                        .addGap(332, 332, 332)
-                        .addComponent(lbQLTU))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 528, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -556,16 +620,27 @@ public class NuocUong extends javax.swing.JFrame {
                                 .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1))
                         .addGap(26, 26, 26)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnBack)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lbQLTU)
+                        .addGap(150, 150, 150)
+                        .addComponent(jLabel8)
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel1))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lbQLTU)
-                    .addComponent(btnBack))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(btnBack))
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel1)
+                    .addComponent(lbQLTU))
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
@@ -602,13 +677,13 @@ public class NuocUong extends javax.swing.JFrame {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
 
         reset();
-        add = true;
+
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-//        add = false;
-//        change = true;
-//        Enabled();      
+
+        editDrink();
+
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
@@ -623,27 +698,18 @@ public class NuocUong extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Xóa thành công thức uống!");
                 Click(click);
             }
-
         } catch (Exception e) {
             System.out.println(e);
         }
         reset();
         loadData();
-
-
     }//GEN-LAST:event_btnDelActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-//        if (add == true) {
-//            if (check()) {
-//                addDrink();
-//            }
-//        } else {
-//            if (change == true) {
-//                editDrink();
-//            }
-//        }
-        addDrink();
+        if (checkMTU() && checkTTU()) {
+            addDrink();
+        }
+
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
@@ -655,8 +721,6 @@ public class NuocUong extends javax.swing.JFrame {
         if (result == JOptionPane.YES_OPTION) {
             MainFr mf = new MainFr();
             mf.setVisible(true);
-            mf.setLocationRelativeTo(null);
-            mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.dispose();
         }
 
@@ -670,6 +734,23 @@ public class NuocUong extends javax.swing.JFrame {
         // show dòng index lên form
         Click(click);
     }//GEN-LAST:event_tableDrinkMouseClicked
+
+    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
+        this.setState(JFrame.ICONIFIED);
+    }//GEN-LAST:event_jLabel8MouseClicked
+
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+        int result = JOptionPane.showConfirmDialog(this,
+                "Bạn có muốn thoát khỏi chương trình", "",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (result == JOptionPane.YES_OPTION) {
+//            System.exit(0);
+            MainFr mf = new MainFr();
+            mf.setVisible(true);
+            this.dispose();
+        }
+    }//GEN-LAST:event_jLabel1MouseClicked
 
     /**
      * @param args the command line arguments
@@ -715,8 +796,10 @@ public class NuocUong extends javax.swing.JFrame {
     private javax.swing.JButton btnFind;
     private javax.swing.JButton btnSave;
     private javax.swing.JComboBox<String> cbLoaiNuoc;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;

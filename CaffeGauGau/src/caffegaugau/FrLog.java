@@ -167,7 +167,7 @@ public class FrLog extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         try {
-            String bdurl = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe;user=sa;password=123";
+            String bdurl = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe;user=sa;password=songlong";
             Connection conn = DriverManager.getConnection(bdurl);
             String sql = """
                 SELECT * FROM QLNV Where taiKhoan=? AND matKhau=?""";
