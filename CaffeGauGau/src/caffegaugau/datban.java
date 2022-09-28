@@ -4,6 +4,15 @@
  */
 package caffegaugau;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Vector;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
 /**
  *
  * @author dhhoa
@@ -13,9 +22,118 @@ public class datban extends javax.swing.JFrame {
     /**
      * Creates new form DatBam
      */
+    private DefaultTableModel model;
+    String sql;
+    Statement st;
+    Connection cnn;
+    String user = "sa";
+    String pass = "songlong"; // thay doi pass cho phu hop
+    String url = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe";
     public datban() {
         initComponents();
+        Load();
     }
+    private void Enabled(){
+        tfTenkhach.setEnabled(true);
+        tfSDT.setEnabled(true);
+        cboSoban.setEnabled(true);
+        cbxHours.setEnabled(true);
+        cbxMinute.setEnabled(true);
+        tfDay.setEnabled(true);
+        radNo.setEnabled(true);
+        radDathanhtoan.setEnabled(true);
+        tfNote.setEnabled(true);
+    }
+    
+    private void Disabled(){
+        tfTenkhach.setEnabled(false);
+        tfSDT.setEnabled(false);
+        cboSoban.setEnabled(false);
+        cbxHours.setEnabled(false);
+        cbxMinute.setEnabled(false);
+        tfDay.setEnabled(false);
+        radNo.setEnabled(false);
+        radDathanhtoan.setEnabled(false);
+        tfNote.setEnabled(false);
+    }
+    private void Load(){
+        String[] arry={"Tên khách hàng","SĐT","Bàn","Thời gian","Ngày","Thanh toán","Ghi Chú"};
+            DefaultTableModel model=new DefaultTableModel(arry,0);
+        try {
+            cnn = DriverManager.getConnection(url, user, pass);
+            Statement st = cnn.createStatement();
+            sql = "Select * from DatBan";
+            ResultSet rs = st.executeQuery(sql);
+            while(rs.next()){
+                Vector vector=new Vector();
+                vector.add(rs.getString("tenKH").trim());
+                vector.add(rs.getString("sdt").trim());
+                vector.add(rs.getInt("ban"));
+                vector.add(rs.getString("thoiGian").trim());
+                vector.add(rs.getString("ngay").trim());
+                vector.add(rs.getString("thanhToan").trim());
+                vector.add(rs.getString("ghiChu").trim());
+                model.addRow(vector);
+            }
+            tableDatban.setModel(model);
+            st.close();
+            cnn.close();
+            rs.close();
+        } catch (Exception e) {
+             System.out.println(e);
+        }
+    }
+    private void loadBan(){
+        cboSoban.removeAllItems();
+         
+        for(int i=1;i <= 25;i++){
+            cboSoban.addItem(String.valueOf(i));
+        }
+    }
+    private void loadHours(){
+        cbxHours.removeAllItems();
+        
+        for(int i=0;i <= 23;i++){
+            cbxHours.addItem(String.valueOf(i));
+        }
+    }
+    private void loadMinute(){
+        cbxMinute.removeAllItems();
+        
+        for(int i=0;i <= 59;i++){
+            if(i<10){
+                cbxMinute.addItem(String.valueOf("0"+i));
+            }
+            else cbxMinute.addItem(String.valueOf(i));
+        }
+    }
+    private void reset(){
+        loadBan();
+        loadHours();
+        loadMinute();
+        tfTenkhach.setText("");
+        tfSDT.setText("");
+        cboSoban.setSelectedIndex(0);
+        cbxHours.setSelectedIndex(0);
+        cbxMinute.setSelectedIndex(0);
+        ((JTextField)tfDay.getDateEditor().getUiComponent()).setText("");
+        radNo.setSelected(false);
+        radDathanhtoan.setSelected(false);
+        tfNote.setText("");
+        btnAdd.setEnabled(true);
+        btnEdit.setEnabled(false);
+        btnDel.setEnabled(false);
+        btnSave.setEnabled(false);
+        btnCancel.setEnabled(false);
+        lbTrangthai.setText("Trạng thái");  
+    }
+    private void checkThanhtoan(String tt){
+        if(tt.equals("Không")){
+            radNo.setSelected(true);
+        }else
+            radDathanhtoan.setSelected(true);
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -47,6 +165,7 @@ public class datban extends javax.swing.JFrame {
         cbxHours = new javax.swing.JComboBox<>();
         cbxMinute = new javax.swing.JComboBox<>();
         lbl2Cham = new javax.swing.JLabel();
+        tfDay = new com.toedter.calendar.JDateChooser();
         btnHome = new javax.swing.JButton();
         lbTrangthai = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -184,12 +303,13 @@ public class datban extends javax.swing.JFrame {
                             .addComponent(lbTime)
                             .addComponent(lbDay))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(tfSDT)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(radNo)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(radDathanhtoan))
+                                .addComponent(radDathanhtoan)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(cboSoban, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(tfTenkhach)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -197,7 +317,8 @@ public class datban extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(lbl2Cham, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cbxMinute, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addComponent(cbxMinute, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(tfDay, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -230,8 +351,10 @@ public class datban extends javax.swing.JFrame {
                             .addComponent(cbxMinute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lbl2Cham))
                         .addGap(18, 18, 18)
-                        .addComponent(lbDay)
-                        .addGap(19, 19, 19)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbDay)
+                            .addComponent(tfDay, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(14, 14, 14)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lbThanhtoan)
                             .addComponent(radNo)
@@ -316,12 +439,14 @@ public class datban extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
-                    .addComponent(btnEdit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnDel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(btnSave, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnDel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnEdit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(0, 18, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -341,10 +466,10 @@ public class datban extends javax.swing.JFrame {
                                 .addComponent(jLabel1)
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(237, 237, 237)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(242, 242, 242))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -359,9 +484,9 @@ public class datban extends javax.swing.JFrame {
                         .addComponent(btnHome)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lbTrangthai)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -382,7 +507,29 @@ public class datban extends javax.swing.JFrame {
     }//GEN-LAST:event_radDathanhtoanActionPerformed
 
     private void tableDatbanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableDatbanMouseClicked
-       
+        cboSoban.removeAllItems();
+        cbxHours.removeAllItems();
+        cbxMinute.removeAllItems();
+        
+        int click=tableDatban.getSelectedRow();
+        TableModel model=tableDatban.getModel();
+        
+        tfTenkhach.setText(model.getValueAt(click, 0).toString());
+        tfSDT.setText(model.getValueAt(click, 1).toString());
+        cboSoban.addItem(model.getValueAt(click, 2).toString());
+        
+        String[] s=model.getValueAt(click, 3).toString().split(":");
+        
+        cbxHours.addItem(s[0]);
+        cbxMinute.addItem(s[1]);
+        
+        ((JTextField)tfDay.getDateEditor().getUiComponent()).setText(model.getValueAt(click, 4).toString());
+        tfNote.setText(model.getValueAt(click, 6).toString());
+        checkThanhtoan(model.getValueAt(click, 5).toString());
+        
+        
+        btnEdit.setEnabled(true);
+        btnDel.setEnabled(true);
     }//GEN-LAST:event_tableDatbanMouseClicked
 
     private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
@@ -474,8 +621,7 @@ public class datban extends javax.swing.JFrame {
     private javax.swing.JRadioButton radDathanhtoan;
     private javax.swing.JRadioButton radNo;
     private javax.swing.JTable tableDatban;
-    private org.netbeans.modules.form.InvalidComponent tfDay;
-    private org.netbeans.modules.form.InvalidComponent tfDay1;
+    private com.toedter.calendar.JDateChooser tfDay;
     private javax.swing.JTextField tfNote;
     private javax.swing.JTextField tfSDT;
     private javax.swing.JTextField tfTenkhach;

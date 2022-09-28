@@ -41,10 +41,10 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="237" max="-2" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="242" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -64,9 +64,9 @@
                   </Group>
               </Group>
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="lbTrangthai" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -100,12 +100,13 @@
                               <Component id="lbDay" alignment="1" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="tfSDT" alignment="1" max="32767" attributes="0"/>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="radNo" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="radDathanhtoan" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <Component id="cboSoban" alignment="0" max="32767" attributes="0"/>
                               <Component id="tfTenkhach" alignment="1" max="32767" attributes="0"/>
@@ -116,6 +117,7 @@
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="cbxMinute" max="32767" attributes="0"/>
                               </Group>
+                              <Component id="tfDay" alignment="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Component id="jPanel2" alignment="0" max="32767" attributes="0"/>
@@ -158,8 +160,11 @@
                               <Component id="lbl2Cham" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="lbDay" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="lbDay" min="-2" max="-2" attributes="0"/>
+                              <Component id="tfDay" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="lbThanhtoan" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="radNo" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -403,6 +408,8 @@
             <Property name="text" type="java.lang.String" value=":"/>
           </Properties>
         </Component>
+        <Component class="com.toedter.calendar.JDateChooser" name="tfDay">
+        </Component>
       </SubComponents>
     </Container>
     <Component class="javax.swing.JButton" name="btnHome">
@@ -451,13 +458,16 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="btnAdd" pref="44" max="32767" attributes="0"/>
-                      <Component id="btnEdit" alignment="0" max="32767" attributes="0"/>
-                      <Component id="btnDel" alignment="0" max="32767" attributes="0"/>
-                      <Component id="btnSave" max="32767" attributes="0"/>
-                      <Component id="btnCancel" alignment="0" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="btnCancel" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="btnSave" alignment="0" max="32767" attributes="0"/>
+                          <Component id="btnDel" alignment="0" max="32767" attributes="0"/>
+                          <Component id="btnEdit" alignment="0" max="32767" attributes="0"/>
+                          <Component id="btnAdd" alignment="0" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
+                  <EmptySpace min="0" pref="18" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
