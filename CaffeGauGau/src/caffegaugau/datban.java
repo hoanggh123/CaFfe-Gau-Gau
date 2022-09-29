@@ -255,21 +255,22 @@ public class datban extends javax.swing.JFrame {
     public boolean checkKH() {
         try {
             cnn = DriverManager.getConnection(url, user, pass);
-            String check = "SELECT maNuoc FROM DatBan WHERE tenKH = ?";
+            String check = "SELECT tenKH FROM DatBan WHERE tenKH = ?";
             PreparedStatement ps = cnn.prepareStatement(check);
             ps.setString(1, tfTenkhach.getText());
             ResultSet rs = ps.executeQuery();
-            String nuoc;
+            String KH;
             while (rs.next()) {
-                nuoc = rs.getString("maNuoc");
-                if (nuoc.equals(tfTenkhach.getText())) {
-                    lbTrangthai.setText("Mã nước bạn nhập đã tồn tại");
+                KH = rs.getString("tenKH");
+                if (KH.equals(tfTenkhach.getText())) {
+                    lbTrangthai.setText("Tên khách hàng bạn nhập đã tồn tại");
                     return false;
                 }
                 cnn.close();
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
+        } catch ( Exception e) {
+//            Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
+             e.printStackTrace();
         }
         return true;
     }

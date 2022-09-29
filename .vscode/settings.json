@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "d:\\Java2\\Tai nguyen\\sqljdbc4.jar"
+    ]
+}
