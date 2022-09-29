@@ -4,8 +4,6 @@
  */
 package caffegaugau;
 
-import Database.MyDatabase;
-import Database.SQL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,7 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -75,7 +73,6 @@ public class NuocUong extends javax.swing.JFrame {
         cbLoaiNuoc.addItem("Sinh Tố");
         cbLoaiNuoc.addItem("Nước Giải Khát");
     }
-
     private void loadData() {
         String[] arry = {"Mã Thức Uống", "Loại Nước", "Tên Nước", "Đơn Vị", "Số Lượng", "Giá Bán"};
         model = new DefaultTableModel(arry, 0);
@@ -225,16 +222,17 @@ public class NuocUong extends javax.swing.JFrame {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection cnn = DriverManager.getConnection(url, user, pass);
-            PreparedStatement ps = cnn.prepareStatement("UPDATE QLNuoc SET maNuoc=?,loaiNuoc=?,tenNuoc=?,giaBan=?,donVi=?,soLuong=? WHERE maNuoc=?");
-            ps.setString(1, tfMatu.getText());
-            ps.setString(2, editnuoc);
-            ps.setString(3, tfTen.getText());
-            ps.setString(4, tfGia.getText());
-            ps.setString(5, tfDonVi.getText());
-            ps.setString(6, tfSoLuong.getText());
+            PreparedStatement ps = cnn.prepareStatement("UPDATE QLNuoc SET loaiNuoc=?,tenNuoc=?,giaBan=?,donVi=?,soLuong=? WHERE maNuoc=?");
+            ps.setString(1, editnuoc);
+            ps.setString(2, tfTen.getText());
+            ps.setString(3, tfGia.getText());
+            ps.setString(4, tfDonVi.getText());
+            ps.setString(5, tfSoLuong.getText());
+            ps.setString(6, tfMatu.getText());
             int update = ps.executeUpdate();
             if (update == 1) {
                 JOptionPane.showMessageDialog(this, "Thức uống đã được thay đổi");
+                loadData();
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Thay đổi that bai");

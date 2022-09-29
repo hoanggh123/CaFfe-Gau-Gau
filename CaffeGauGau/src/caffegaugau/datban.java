@@ -6,9 +6,14 @@ package caffegaugau;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -22,6 +27,8 @@ public class datban extends javax.swing.JFrame {
     /**
      * Creates new form DatBam
      */
+    private boolean add = false, change = false;
+    int click = -1;
     private DefaultTableModel model;
     String sql;
     Statement st;
@@ -29,11 +36,43 @@ public class datban extends javax.swing.JFrame {
     String user = "sa";
     String pass = "songlong"; // thay doi pass cho phu hop
     String url = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe";
+
     public datban() {
         initComponents();
+        setLocationRelativeTo(null);
         Load();
+        loadBan();
+        click = 0;
+        Click(click);
+        Disabled();
+
     }
-    private void Enabled(){
+
+    private boolean checkNull() {
+        if (tfTenkhach.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập tên khách hàng");
+            return false;
+        } else if (tfSDT.getText().equals("")) {
+            lbTrangthai.setText("Bạn cần phải nhập số điện thoại của khách");
+            return false;
+        } else if (cboSoban.getSelectedItem() == null) {
+            lbTrangthai.setText("Bạn cần chọn bàn cho khách");
+            return false;
+        } else //         if(tfTimes.getText().equals("")){
+        //            lbTrangthai.setText("Chưa có thời gian đặt bàn của khách");
+        //            return false;
+        //        }else
+        if (((JTextField) tfDay.getDateEditor().getUiComponent()).getText().equals("")) {
+            lbTrangthai.setText("Chưa ấn định ngày đặt bàn");
+            return false;
+        } else if (radNo.isSelected() == false && radDathanhtoan.isSelected() == false) {
+            lbTrangthai.setText("Bạn chưa chọn tình trạng thanh toán!");
+            return false;
+        }
+        return true;
+    }
+
+    private void Enabled() {
         tfTenkhach.setEnabled(true);
         tfSDT.setEnabled(true);
         cboSoban.setEnabled(true);
@@ -43,9 +82,12 @@ public class datban extends javax.swing.JFrame {
         radNo.setEnabled(true);
         radDathanhtoan.setEnabled(true);
         tfNote.setEnabled(true);
+        btnEdit.setEnabled(true);
+        btnDel.setEnabled(true);
+        btnSave.setEnabled(true);
     }
-    
-    private void Disabled(){
+
+    private void Disabled() {
         tfTenkhach.setEnabled(false);
         tfSDT.setEnabled(false);
         cboSoban.setEnabled(false);
@@ -55,17 +97,21 @@ public class datban extends javax.swing.JFrame {
         radNo.setEnabled(false);
         radDathanhtoan.setEnabled(false);
         tfNote.setEnabled(false);
+        btnSave.setEnabled(false);
+        btnDel.setEnabled(false);
+        btnEdit.setEnabled(false);
     }
-    private void Load(){
-        String[] arry={"Tên khách hàng","SĐT","Bàn","Thời gian","Ngày","Thanh toán","Ghi Chú"};
-            DefaultTableModel model=new DefaultTableModel(arry,0);
+
+    private void Load() {
+        String[] arry = {"Tên khách hàng", "SĐT", "Bàn", "Thời gian", "Ngày", "Thanh toán", "Ghi Chú"};
+        model = new DefaultTableModel(arry, 0);
         try {
             cnn = DriverManager.getConnection(url, user, pass);
             Statement st = cnn.createStatement();
             sql = "Select * from DatBan";
             ResultSet rs = st.executeQuery(sql);
-            while(rs.next()){
-                Vector vector=new Vector();
+            while (rs.next()) {
+                Vector vector = new Vector();
                 vector.add(rs.getString("tenKH").trim());
                 vector.add(rs.getString("sdt").trim());
                 vector.add(rs.getInt("ban"));
@@ -80,34 +126,39 @@ public class datban extends javax.swing.JFrame {
             cnn.close();
             rs.close();
         } catch (Exception e) {
-             System.out.println(e);
+            System.out.println(e);
         }
     }
-    private void loadBan(){
+
+    private void loadBan() {
         cboSoban.removeAllItems();
-         
-        for(int i=1;i <= 25;i++){
+
+        for (int i = 1; i <= 25; i++) {
             cboSoban.addItem(String.valueOf(i));
         }
     }
-    private void loadHours(){
+
+    private void loadHours() {
         cbxHours.removeAllItems();
-        
-        for(int i=0;i <= 23;i++){
+
+        for (int i = 0; i <= 23; i++) {
             cbxHours.addItem(String.valueOf(i));
         }
     }
-    private void loadMinute(){
+
+    private void loadMinute() {
         cbxMinute.removeAllItems();
-        
-        for(int i=0;i <= 59;i++){
-            if(i<10){
-                cbxMinute.addItem(String.valueOf("0"+i));
+
+        for (int i = 0; i <= 59; i++) {
+            if (i < 10) {
+                cbxMinute.addItem(String.valueOf("0" + i));
+            } else {
+                cbxMinute.addItem(String.valueOf(i));
             }
-            else cbxMinute.addItem(String.valueOf(i));
         }
     }
-    private void reset(){
+
+    private void reset() {
         loadBan();
         loadHours();
         loadMinute();
@@ -116,7 +167,7 @@ public class datban extends javax.swing.JFrame {
         cboSoban.setSelectedIndex(0);
         cbxHours.setSelectedIndex(0);
         cbxMinute.setSelectedIndex(0);
-        ((JTextField)tfDay.getDateEditor().getUiComponent()).setText("");
+        ((JTextField) tfDay.getDateEditor().getUiComponent()).setText("");
         radNo.setSelected(false);
         radDathanhtoan.setSelected(false);
         tfNote.setText("");
@@ -125,15 +176,132 @@ public class datban extends javax.swing.JFrame {
         btnDel.setEnabled(false);
         btnSave.setEnabled(false);
         btnCancel.setEnabled(false);
-        lbTrangthai.setText("Trạng thái");  
+        lbTrangthai.setText("Trạng thái");
     }
-    private void checkThanhtoan(String tt){
-        if(tt.equals("Không")){
+
+    private void checkThanhtoan(String tt) {
+        if (tt.equals("Không")) {
             radNo.setSelected(true);
-        }else
+        } else {
             radDathanhtoan.setSelected(true);
+        }
     }
-    
+
+    public void Click(int k) {
+       Enabled();
+        cboSoban.removeAllItems();
+        cbxHours.removeAllItems();
+        cbxMinute.removeAllItems();
+        if (k >= 0) {
+//               k=tableDatban.getSelectedRow();
+//        TableModel model=tableDatban.getModel();
+
+            tfTenkhach.setText(model.getValueAt(k, 0).toString());
+            tfSDT.setText(model.getValueAt(k, 1).toString());
+            cboSoban.addItem(model.getValueAt(k, 2).toString());
+            String[] s = model.getValueAt(k, 3).toString().split(":");
+
+            cbxHours.addItem(s[0]);
+            cbxMinute.addItem(s[1]);
+
+            ((JTextField) tfDay.getDateEditor().getUiComponent()).setText(model.getValueAt(k, 4).toString());
+            tfNote.setText(model.getValueAt(k, 6).toString());
+            checkThanhtoan(model.getValueAt(k, 5).toString());
+        }
+        
+
+    }
+
+    private void addBan() {
+        String ban = (String) cboSoban.getSelectedItem();
+        String gio = (String) cbxHours.getSelectedItem();
+        String phut = (String) cbxMinute.getSelectedItem();
+        String day = ((JTextField) tfDay.getDateEditor().getUiComponent()).getText();
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection cnn = DriverManager.getConnection(url, user, pass);
+            PreparedStatement ps = cnn.prepareStatement("insert into DatBan values(?,?,?,?,?,?,?)");
+            ps.setString(1, tfTenkhach.getText());
+            ps.setString(2, tfSDT.getText());
+            ps.setString(3, ban);
+            ps.setString(4, gio + lbl2Cham.getText() + phut);
+            ps.setString(5, day);
+            ps.setString(6, thanhtoan());
+            ps.setString(7, tfNote.getText());
+            int kq = ps.executeUpdate();
+            if (kq == 1) {
+                JOptionPane.showMessageDialog(this, "Thêm thành công");
+            }
+            Load();
+            ps.close();
+            cnn.close();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Thêm that bai");
+            e.printStackTrace();
+        }
+
+    }
+
+    private String thanhtoan() {
+        if (radNo.isSelected()) {
+            return radNo.getText();
+        } else {
+            return radDathanhtoan.getText();
+        }
+    }
+
+    public boolean checkKH() {
+        try {
+            cnn = DriverManager.getConnection(url, user, pass);
+            String check = "SELECT maNuoc FROM DatBan WHERE tenKH = ?";
+            PreparedStatement ps = cnn.prepareStatement(check);
+            ps.setString(1, tfTenkhach.getText());
+            ResultSet rs = ps.executeQuery();
+            String nuoc;
+            while (rs.next()) {
+                nuoc = rs.getString("maNuoc");
+                if (nuoc.equals(tfTenkhach.getText())) {
+                    lbTrangthai.setText("Mã nước bạn nhập đã tồn tại");
+                    return false;
+                }
+                cnn.close();
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return true;
+    }
+    private void editBan() {
+        String ban = (String) cboSoban.getSelectedItem();
+        String gio = (String) cbxHours.getSelectedItem();
+        String phut = (String) cbxMinute.getSelectedItem();
+        String day = ((JTextField) tfDay.getDateEditor().getUiComponent()).getText();
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection cnn = DriverManager.getConnection(url, user, pass);
+            PreparedStatement ps = cnn.prepareStatement("UPDATE DatBan SET sdt=?,ban=?,thoiGian=?,ngay=?,thanhToan=?,ghiChu=? WHERE tenKH=?");
+            ps.setString(1, tfSDT.getText());
+            ps.setString(2, ban);
+            ps.setString(3, gio + lbl2Cham.getText() + phut);
+            ps.setString(4, day);
+            ps.setString(5, thanhtoan());
+            ps.setString(6, tfNote.getText());
+            ps.setString(7, tfTenkhach.getText());
+            
+            int update = ps.executeUpdate();
+            if (update == 1) {
+                JOptionPane.showMessageDialog(this, "Thức uống đã được thay đổi");
+                Load();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Thay đổi that bai");
+            e.printStackTrace();
+        }
+
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -378,7 +546,6 @@ public class datban extends javax.swing.JFrame {
 
         btnSave.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/floppy-disk (1).png"))); // NOI18N
-        btnSave.setEnabled(false);
         btnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSaveActionPerformed(evt);
@@ -387,7 +554,6 @@ public class datban extends javax.swing.JFrame {
 
         btnCancel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         btnCancel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/x-button.png"))); // NOI18N
-        btnCancel.setEnabled(false);
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelActionPerformed(evt);
@@ -403,7 +569,6 @@ public class datban extends javax.swing.JFrame {
         });
 
         btnEdit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/edit.png"))); // NOI18N
-        btnEdit.setEnabled(false);
         btnEdit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEditActionPerformed(evt);
@@ -411,7 +576,6 @@ public class datban extends javax.swing.JFrame {
         });
 
         btnDel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Photos/delete.png"))); // NOI18N
-        btnDel.setEnabled(false);
         btnDel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDelActionPerformed(evt);
@@ -441,11 +605,10 @@ public class datban extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(btnSave, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnDel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnEdit, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnEdit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(0, 18, Short.MAX_VALUE))
         );
 
@@ -495,67 +658,71 @@ public class datban extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tfSDTKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfSDTKeyReleased
-        
+
     }//GEN-LAST:event_tfSDTKeyReleased
 
     private void radNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radNoActionPerformed
-       
+
     }//GEN-LAST:event_radNoActionPerformed
 
     private void radDathanhtoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radDathanhtoanActionPerformed
-        
+
     }//GEN-LAST:event_radDathanhtoanActionPerformed
 
     private void tableDatbanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableDatbanMouseClicked
-        cboSoban.removeAllItems();
-        cbxHours.removeAllItems();
-        cbxMinute.removeAllItems();
-        
-        int click=tableDatban.getSelectedRow();
-        TableModel model=tableDatban.getModel();
-        
-        tfTenkhach.setText(model.getValueAt(click, 0).toString());
-        tfSDT.setText(model.getValueAt(click, 1).toString());
-        cboSoban.addItem(model.getValueAt(click, 2).toString());
-        
-        String[] s=model.getValueAt(click, 3).toString().split(":");
-        
-        cbxHours.addItem(s[0]);
-        cbxMinute.addItem(s[1]);
-        
-        ((JTextField)tfDay.getDateEditor().getUiComponent()).setText(model.getValueAt(click, 4).toString());
-        tfNote.setText(model.getValueAt(click, 6).toString());
-        checkThanhtoan(model.getValueAt(click, 5).toString());
-        
-        
-        btnEdit.setEnabled(true);
-        btnDel.setEnabled(true);
+
+        click = tableDatban.getSelectedRow();
+        // show dòng index lên form
+        Click(click);
     }//GEN-LAST:event_tableDatbanMouseClicked
 
     private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
-       
+
     }//GEN-LAST:event_btnHomeActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-
-    
+        if (checkKH()) {
+            addBan();
+        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-       
+
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        
+        reset();
+        add = true;
+        Enabled();
+
+        btnSave.setEnabled(true);
+        btnAdd.setEnabled(false);
+        btnCancel.setEnabled(true);
 
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
         
+
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
-      
+         try {
+            int del = JOptionPane.showConfirmDialog(null, "Bạn có muốn xóa khách đặt bàn này hay không?", "Thông báo", 2);
+            if (del == JOptionPane.YES_OPTION) {
+                cnn = DriverManager.getConnection(url, user, pass);
+                String sqldel = "DELETE FROM DatBan WHERE tenKH =?";
+                PreparedStatement ps = cnn.prepareStatement(sqldel);
+                ps.setString(1, tfTenkhach.getText().trim());
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Xóa thành công khách đặt bàn");
+                Click(click);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        reset();
+        Load();
     }//GEN-LAST:event_btnDelActionPerformed
 
     /**
