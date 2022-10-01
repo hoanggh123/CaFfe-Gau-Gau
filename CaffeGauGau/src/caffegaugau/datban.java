@@ -188,7 +188,7 @@ public class datban extends javax.swing.JFrame {
     }
 
     public void Click(int k) {
-       Enabled();
+        Enabled();
         cboSoban.removeAllItems();
         cbxHours.removeAllItems();
         cbxMinute.removeAllItems();
@@ -208,7 +208,6 @@ public class datban extends javax.swing.JFrame {
             tfNote.setText(model.getValueAt(k, 6).toString());
             checkThanhtoan(model.getValueAt(k, 5).toString());
         }
-        
 
     }
 
@@ -252,28 +251,28 @@ public class datban extends javax.swing.JFrame {
         }
     }
 
-    public boolean checkKH() {
+    public boolean checkTKH() {
         try {
             cnn = DriverManager.getConnection(url, user, pass);
             String check = "SELECT tenKH FROM DatBan WHERE tenKH = ?";
             PreparedStatement ps = cnn.prepareStatement(check);
             ps.setString(1, tfTenkhach.getText());
             ResultSet rs = ps.executeQuery();
-            String KH;
+            String khach;
             while (rs.next()) {
-                KH = rs.getString("tenKH");
-                if (KH.equals(tfTenkhach.getText())) {
-                    lbTrangthai.setText("Tên khách hàng bạn nhập đã tồn tại");
+                khach = rs.getString("tenKH");
+                if (khach.equals(tfTenkhach.getText())) {
+                    lbTrangthai.setText("Tên khách bạn nhập đã tồn tại");
                     return false;
                 }
                 cnn.close();
             }
-        } catch ( Exception e) {
-//            Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
-             e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(datban.class.getName()).log(Level.SEVERE, null, ex);
         }
         return true;
     }
+
     private void editBan() {
         String ban = (String) cboSoban.getSelectedItem();
         String gio = (String) cbxHours.getSelectedItem();
@@ -290,7 +289,7 @@ public class datban extends javax.swing.JFrame {
             ps.setString(5, thanhtoan());
             ps.setString(6, tfNote.getText());
             ps.setString(7, tfTenkhach.getText());
-            
+
             int update = ps.executeUpdate();
             if (update == 1) {
                 JOptionPane.showMessageDialog(this, "Thức uống đã được thay đổi");
@@ -302,7 +301,6 @@ public class datban extends javax.swing.JFrame {
         }
 
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -682,7 +680,7 @@ public class datban extends javax.swing.JFrame {
     }//GEN-LAST:event_btnHomeActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        if (checkKH()) {
+        if (checkTKH()) {
             addBan();
         }
     }//GEN-LAST:event_btnSaveActionPerformed
@@ -703,12 +701,12 @@ public class datban extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-        
+
 
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
-         try {
+        try {
             int del = JOptionPane.showConfirmDialog(null, "Bạn có muốn xóa khách đặt bàn này hay không?", "Thông báo", 2);
             if (del == JOptionPane.YES_OPTION) {
                 cnn = DriverManager.getConnection(url, user, pass);

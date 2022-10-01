@@ -258,11 +258,15 @@ public class MainFr extends javax.swing.JFrame {
     }//GEN-LAST:event_btnQLNVActionPerformed
 
     private void btnBanhangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBanhangActionPerformed
-
+BanCf cf = new BanCf();
+        this.setVisible(false);
+        cf.setVisible(true);
     }//GEN-LAST:event_btnBanhangActionPerformed
 
     private void btnThongkeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThongkeActionPerformed
-
+        thongke tke = new thongke();
+        this.setVisible(false);
+        tke.setVisible(true);
     }//GEN-LAST:event_btnThongkeActionPerformed
 
     private void btnDatbanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDatbanActionPerformed

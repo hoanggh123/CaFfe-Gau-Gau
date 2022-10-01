@@ -10,6 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +27,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class NuocUong extends javax.swing.JFrame {
 
-    int click = -1;
+    ArrayList<ListNuoc> list = new ArrayList<>();
+    int click = 0;
     private DefaultTableModel model;
     String sql;
     Statement st;
@@ -41,22 +45,9 @@ public class NuocUong extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         loadData();
         loadLoaiNuoc();
-        click = 0;
+
         Click(click);
         Disabled();
-    }
-
-    private void checkKyTu(String arry) {
-        char[] character = arry.toCharArray();
-        for (int i = 0; i < character.length; i++) {
-            if (String.valueOf(character[i]).matches("\\D+")) {
-                btnSave.setEnabled(false);
-                lbTrangthai.setText("Số lượng không thể chứa kí tự");
-                break;
-            } else {
-                btnSave.setEnabled(true);
-            }
-        }
     }
 
     private String cutChar(String arry) {
@@ -73,6 +64,7 @@ public class NuocUong extends javax.swing.JFrame {
         cbLoaiNuoc.addItem("Sinh Tố");
         cbLoaiNuoc.addItem("Nước Giải Khát");
     }
+
     private void loadData() {
         String[] arry = {"Mã Thức Uống", "Loại Nước", "Tên Nước", "Đơn Vị", "Số Lượng", "Giá Bán"};
         model = new DefaultTableModel(arry, 0);
@@ -137,7 +129,6 @@ public class NuocUong extends javax.swing.JFrame {
         btnDel.setEnabled(true);
         btnEdit.setEnabled(true);
         btnSave.setEnabled(true);
-
     }
 
     //Block input
@@ -168,6 +159,12 @@ public class NuocUong extends javax.swing.JFrame {
     }
 
     private boolean checkNull() {
+        try {
+            Double.parseDouble(tfSoLuong.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Lương phải là số", "Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
         if (tfMatu.getText().equals("")) {
             lbTrangthai.setText("Bạn chưa nhập mã thức uống!");
             return false;
@@ -206,6 +203,7 @@ public class NuocUong extends javax.swing.JFrame {
             if (kq == 1) {
                 JOptionPane.showMessageDialog(this, "Thêm thành công");
             }
+
             loadData();
             ps.close();
             cnn.close();
@@ -285,32 +283,55 @@ public class NuocUong extends javax.swing.JFrame {
         return true;
     }
 
-//    private boolean check() {
-//        try {
-//            ResultSet rs = st.executeQuery(sql);
-//            String mtu;
-//            String ttu;
-//            while (rs.next()) {
-//                mtu = rs.getString("maNuoc");
-//                ttu = rs.getString("tenNuoc");
-//                if (mtu.equals(tfMatu.getText())) {
-//                    JOptionPane.showMessageDialog(this, "Ma thuc uong da ton tai");
-//                    return false;
-//                }
-//                if (ttu.equals(tfTen.getText())) {
-//                    JOptionPane.showMessageDialog(this, "Ma thuc uong da ton tai");
-//                    return false;
-//                }
-//                cnn.close();
-//            }
-//            st.close();
-//            cnn.close();
-//            rs.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//        return true;
-//    }
+    public List timTheoMa(String ID) {
+        for (ListNuoc nv : list) {
+            if (nv.getMaTU().equalsIgnoreCase(ID)) {
+                return (List) nv;
+            }
+        }
+        return null;
+    }
+
+    public void Search() {
+        if (tfFind.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Ko the tìm");
+            return;
+        } else {
+            try {
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                String url = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe;user=sa;password=songlong";
+                Connection con = DriverManager.getConnection(url);
+                PreparedStatement ps = con.prepareStatement("SELECT * from QLNuoc where maNuoc=?");
+                ps.setString(1, tfMatu.getText());
+                ResultSet rs = ps.executeQuery();
+
+                list.clear();
+                while (rs.next()) {
+                    ListNuoc gra = new ListNuoc();
+                    gra.setMaTU(rs.getString("maNuoc"));
+                    gra.setLoaiTU(rs.getString("loaiNuoc"));
+                    gra.setTenTU(rs.getString("tenNuoc"));
+                    gra.setDonVi(rs.getString("donVi"));
+                    gra.setSoLuong(rs.getInt("soLuong"));
+                    gra.setGiaBan(rs.getInt("giaBan"));
+                    list.add(gra);
+                }
+
+                
+                model.setRowCount(0);
+                for (ListNuoc gra : list) {
+                    Object[] k = new Object[]{gra.getMaTU(), gra.getLoaiTU(), gra.getTenTU(), gra.getDonVi(), gra.getSoLuong(), gra.getGiaBan()};
+                    model.addRow(k);
+                }
+                Click(click);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Khong tim thay sinh vien nay");
+                loadData();
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -655,15 +676,23 @@ public class NuocUong extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tfGiaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfGiaKeyReleased
+        DecimalFormat formatter = new DecimalFormat("###,###,###");
 
+        if (tfGia.getText().equals("")) {
+            return;
+        } else if (tfGia.getText().matches("\\D+")) {
+            tfGia.setText(cutChar(tfGia.getText()));
+        } else {
+            tfGia.setText(formatter.format(convertedToNumbers(cutChar(tfGia.getText()))));
+        }
     }//GEN-LAST:event_tfGiaKeyReleased
 
     private void tfSoLuongKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfSoLuongKeyReleased
-
+        tfSoLuong.setText(cutChar(tfSoLuong.getText()));
     }//GEN-LAST:event_tfSoLuongKeyReleased
 
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
-
+        Search();
     }//GEN-LAST:event_btnFindActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
@@ -680,7 +709,9 @@ public class NuocUong extends javax.swing.JFrame {
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
 
-        editDrink();
+        if (checkMTU() && checkTTU() && checkNull()) {
+            editDrink();
+        }
 
     }//GEN-LAST:event_btnEditActionPerformed
 
@@ -704,7 +735,7 @@ public class NuocUong extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDelActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        if (checkMTU() && checkTTU()) {
+        if (checkMTU() && checkTTU() && checkNull()) {
             addDrink();
         }
 
@@ -728,9 +759,9 @@ public class NuocUong extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void tableDrinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableDrinkMouseClicked
-        click = tableDrink.getSelectedRow();
+        int k = tableDrink.getSelectedRow();
         // show dòng index lên form
-        Click(click);
+        Click(k);
     }//GEN-LAST:event_tableDrinkMouseClicked
 
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
