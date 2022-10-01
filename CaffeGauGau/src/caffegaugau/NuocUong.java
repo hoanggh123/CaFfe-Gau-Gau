@@ -275,7 +275,6 @@ public class NuocUong extends javax.swing.JFrame {
                     lbTrangthai.setText("Tên nước bạn nhập đã tồn tại");
                     return false;
                 }
-                cnn.close();
             }
         } catch (SQLException ex) {
             Logger.getLogger(NuocUong.class.getName()).log(Level.SEVERE, null, ex);
