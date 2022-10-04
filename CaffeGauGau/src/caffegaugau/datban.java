@@ -115,7 +115,7 @@ public class datban extends javax.swing.JFrame {
         String[] arry = {"Tên khách hàng", "SĐT", "Bàn", "Thời gian", "Ngày", "Thanh toán", "Ghi Chú"};
         model = new DefaultTableModel(arry, 0);
         try {
-            cnn = DriverManager.getConnection(url, user, pass);
+           cnn = DriverManager.getConnection(url, user, pass);
             Statement st = cnn.createStatement();
             sql = "Select * from DatBan";
             ResultSet rs = st.executeQuery(sql);
@@ -138,7 +138,6 @@ public class datban extends javax.swing.JFrame {
             System.out.println(e);
         }
     }
-
     private void loadBan() {
         cboSoban.removeAllItems();
 
@@ -302,7 +301,7 @@ public class datban extends javax.swing.JFrame {
 
             int update = ps.executeUpdate();
             if (update == 1) {
-                JOptionPane.showMessageDialog(this, "Thức uống đã được thay đổi");
+                JOptionPane.showMessageDialog(this, "Thông tin đặt bàn đã được thay đổi");
                 Load();
             }
         } catch (Exception e) {
@@ -690,17 +689,17 @@ public class datban extends javax.swing.JFrame {
     }//GEN-LAST:event_btnHomeActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        if (checkNull()) {
+        if (checkNull() & checkBan()) {
             addBan();
             reset();
         }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        MainFr mn  = new MainFr();
+        MainFr mn = new MainFr();
         this.setVisible(false);
         mn.setVisible(true);
-       
+
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
@@ -715,7 +714,7 @@ public class datban extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-
+        editBan();
 
     }//GEN-LAST:event_btnEditActionPerformed
 
