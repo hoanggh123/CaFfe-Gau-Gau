@@ -184,28 +184,6 @@ public class qlnv extends javax.swing.JFrame {
         }
     }
 
-//    public boolean checkMNV() {
-//        try {
-//            cnn = DriverManager.getConnection(url, user, pass);
-//            String check = "SELECT maNV FROM QLNV WHERE maNV = ?";
-//            PreparedStatement ps = cnn.prepareStatement(check);
-//            ps.setString(1, tfMaNV1.getText());
-//            ResultSet rs = ps.executeQuery();
-//            String nv;
-//            while (rs.next()) {
-//                nv = rs.getString("maNV");
-//                if (nv.equals(tfMaNV1.getText())) {
-//                    lbTrangthai.setText("Mã nhân viên bạn nhập đã tồn tại");
-//                    return false;
-//                }
-//                cnn.close();
-//            }
-//        } catch (SQLException ex) {
-//            Logger.getLogger(qlnv.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return true;
-//    }
-
     public boolean checkTK() {
         try {
             cnn = DriverManager.getConnection(url, user, pass);
@@ -213,10 +191,9 @@ public class qlnv extends javax.swing.JFrame {
             PreparedStatement ps = cnn.prepareStatement(check);
             ps.setString(1, tfTaikhoan1.getText());
             ResultSet rs = ps.executeQuery();
-            String tk;
+
             while (rs.next()) {
-                tk = rs.getString("taiKhoan");
-                if (tk.equals(tfTaikhoan1.getText())) {
+                if (rs.getString("taiKhoan").toString().trim().equals(tfTaikhoan1.getText())) {
                     lbTrangthai.setText("Tên tài kho?n bạn nhập đã tồn tại");
                     return false;
                 }
@@ -224,6 +201,66 @@ public class qlnv extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(qlnv.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return true;
+    }
+
+    public boolean checkMNV() {
+        try {
+            cnn = DriverManager.getConnection(url, user, pass);
+            String check = "SELECT maNV FROM QLNV WHERE maNV = ?";
+            PreparedStatement ps = cnn.prepareStatement(check);
+            ps.setString(1, tfMaNV1.getText());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                if (rs.getString("maNV").toString().trim().equals(tfMaNV1.getText())) {
+                    lbTrangthai.setText("Mã nhân viên đã tồn tại");
+                    return false;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(qlnv.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return true;
+    }
+
+    private boolean checkNull() {
+        if (tfMaNV1.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập mã nhân viên!");
+            return false;
+        } else if (tfHoten1.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập họ tên nhân viên!");
+            return false;
+        } else if (rbNam1.isSelected() == false && rbNu1.isSelected() == false) {
+            lbTrangthai.setText("Bạn chưa chọn giới tính!");
+            return false;
+        } else if (((JTextField) tfNgaySinh.getDateEditor().getUiComponent()).getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập ngày sinh!");
+            return false;
+        } else if (tfSDT1.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập số điện thoại!");
+            return false;
+        } else if (tfDiachi1.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập địa chỉ!");
+            return false;
+        } else if (tfTaikhoan1.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập tài khoản!");
+            return false;
+        } else if (pass1.getText().equals("")) {
+            lbTrangthai.setText("Bạn chưa nhập mật khẩu!");
+            return false;
+        } else {
+            String Phone = tfSDT1.getText();
+            int len = Phone.length();
+            if (len != 10) {
+                JOptionPane.showMessageDialog(this, "SỐ điện thoại phải đủ 10 chữ số");
+                return false;
+            }
+
+        }
+
+        checkTK();
+        checkMNV();
         return true;
     }
 
@@ -581,27 +618,26 @@ public class qlnv extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 623, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnBack, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jScrollPane1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 623, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(6, 6, 6)
-                                .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
                                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(lbTrangthai, javax.swing.GroupLayout.PREFERRED_SIZE, 580, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbQLNV))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnBack)
-                        .addGap(447, 447, 447)
-                        .addComponent(lbQLNV)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel8)
                         .addGap(27, 27, 27)
                         .addComponent(jLabel1))))
@@ -609,18 +645,19 @@ public class qlnv extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnBack)
-                            .addComponent(lbQLNV)))
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel8))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel8))
+                        .addGap(62, 62, 62))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnBack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(lbQLNV))
                 .addGap(17, 17, 17)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -684,7 +721,7 @@ public class qlnv extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDelActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        if (checkTK()) {
+        if (checkNull()) {
             addNV();
         }
     }//GEN-LAST:event_btnAddActionPerformed

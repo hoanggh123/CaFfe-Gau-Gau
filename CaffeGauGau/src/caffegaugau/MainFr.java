@@ -20,6 +20,21 @@ public class MainFr extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
+   
+    public void checktk(){
+       int log = JOptionPane.showConfirmDialog(this,
+                "Vui lòng dang nhap de xem thong ke", "",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (log == JOptionPane.YES_OPTION) {
+            FrLog ban = new FrLog();
+            this.setVisible(false);
+            ban.setVisible(true);
+
+        }
+        
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -259,9 +274,8 @@ public class MainFr extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBanhangActionPerformed
 
     private void btnThongkeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThongkeActionPerformed
-        thongke tke = new thongke();
-        this.setVisible(false);
-        tke.setVisible(true);
+
+      checktk();
     }//GEN-LAST:event_btnThongkeActionPerformed
 
     private void btnDatbanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDatbanActionPerformed

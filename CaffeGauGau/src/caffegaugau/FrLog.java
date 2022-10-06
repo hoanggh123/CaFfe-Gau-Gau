@@ -4,7 +4,6 @@
  */
 package caffegaugau;
 
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import java.sql.*;
@@ -21,6 +20,17 @@ public class FrLog extends javax.swing.JFrame {
     public FrLog() {
         initComponents();
         setLocationRelativeTo(null);
+    }
+
+    public void check() {
+        if (tfTaiKhoan.getText().equals("Admin")) {
+            thongke tk = new thongke();
+            tk.setVisible(true);
+            tk.setLocationRelativeTo(null);
+            tk.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.dispose();
+
+        }
     }
 
     /**
@@ -173,9 +183,9 @@ public class FrLog extends javax.swing.JFrame {
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         int result = JOptionPane.showConfirmDialog(this,
-            "Bạn có muốn thoát khỏi chương trình", "",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+                "Bạn có muốn thoát khỏi chương trình", "",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
         if (result == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
@@ -191,33 +201,31 @@ public class FrLog extends javax.swing.JFrame {
             ps.setString(1, tfTaiKhoan.getText());
             ps.setString(2, pass.getText());
             ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                JOptionPane.showMessageDialog(this, "Đang nhap thanh cong");
+            if (rs.next() && !tfTaiKhoan.getText().equals("Admin")) {
+                JOptionPane.showMessageDialog(this, "Đăng nhập thành công");
                 MainFr mf = new MainFr();
                 mf.setVisible(true);
                 mf.setLocationRelativeTo(null);
                 mf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 this.dispose();
+            }else{
+                check();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
         int result = JOptionPane.showConfirmDialog(this,
-            "Bạn có muốn thoát khỏi chương trình", "",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+                "Bạn có muốn thoát khỏi chương trình", "",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
         if (result == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
     }//GEN-LAST:event_jLabel1MouseClicked
 
-        
-    
     /**
      * @param args the command line arguments
      */

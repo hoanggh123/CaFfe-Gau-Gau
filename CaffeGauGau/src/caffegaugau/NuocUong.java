@@ -298,9 +298,9 @@ public class NuocUong extends javax.swing.JFrame {
         } else {
             try {
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                String url = "jdbc:sqlserver://localhost;databaseName=QuanCaPhe;user=sa;password=songlong";
-                Connection con = DriverManager.getConnection(url);
-                PreparedStatement ps = con.prepareStatement("SELECT * from QLNuoc where maNuoc=?");
+                Connection cnn = DriverManager.getConnection(url, user, pass);
+
+                PreparedStatement ps = cnn.prepareStatement("SELECT * from QLNuoc where maNuoc=?");
                 ps.setString(1, tfMatu.getText());
                 ResultSet rs = ps.executeQuery();
 
@@ -315,14 +315,13 @@ public class NuocUong extends javax.swing.JFrame {
                     gra.setGiaBan(rs.getInt("giaBan"));
                     list.add(gra);
                 }
-
-                
+                rs.close();
                 model.setRowCount(0);
                 for (ListNuoc gra : list) {
                     Object[] k = new Object[]{gra.getMaTU(), gra.getLoaiTU(), gra.getTenTU(), gra.getDonVi(), gra.getSoLuong(), gra.getGiaBan()};
                     model.addRow(k);
                 }
-                Click(click);
+//                Click(click);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Khong tim thay sinh vien nay");
                 loadData();
@@ -633,6 +632,14 @@ public class NuocUong extends javax.swing.JFrame {
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lbQLTU)
+                        .addGap(218, 218, 218)
+                        .addComponent(jLabel8)
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 528, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -641,29 +648,21 @@ public class NuocUong extends javax.swing.JFrame {
                             .addComponent(jScrollPane1))
                         .addGap(26, 26, 26)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnBack)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbQLTU)
-                        .addGap(150, 150, 150)
-                        .addComponent(jLabel8)
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel1))))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(btnBack))
                     .addComponent(jLabel8)
                     .addComponent(jLabel1)
-                    .addComponent(lbQLTU))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(lbQLTU))
+                    .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
+                        .addGap(28, 28, 28)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(btnFind)
                             .addComponent(tfFind, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
